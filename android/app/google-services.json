@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "853633630225",
+    "firebase_url": "https://akuatracker-default-rtdb.firebaseio.com",
+    "project_id": "akuatracker",
+    "storage_bucket": "akuatracker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:853633630225:android:3ad19cedcb6408e114f1b0",
+        "android_client_info": {
+          "package_name": "com.akuatracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "853633630225-nkglp64pnjhq8h0b3fpj1d47m4ul0onq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.akuatracker",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "853633630225-1a1jha8s2cv3k1k0587ooe7vau51oeql.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_qF9RKd1HJLwvaEIKiZXKmoIfDA6Ei9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "853633630225-1a1jha8s2cv3k1k0587ooe7vau51oeql.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
