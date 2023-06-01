@@ -5,25 +5,17 @@ import {
   View,
   Image,
   TextInput,
-  Button,
   StatusBar,
-  SafeAreaView,
-  ScrollView,
+  TouchableOpacity,
+  KeyboardAvoidingView,
 } from 'react-native';
 import logo from '../assets/logo.png';
 import {signIn} from '../lib/auth';
 import {Alert} from 'react-native';
 
 export default function LoginScreen({navigation}) {
-  // const isDarkMode = useColorScheme() === 'dark';
-
-  // const backgroundStyle = {
-  //   backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  // };
-
-  const [inputEmail, setInputEmail] = useState(' ');
   const [inputPassword, setInputPassword] = useState(' ');
-
+  const [inputEmail, setInputEmail] = useState('');
   const signInSubmit = async (email, password) => {
     try {
       if (email !== null && password !== null) {
@@ -49,19 +41,18 @@ export default function LoginScreen({navigation}) {
 
   return (
     <View style={styles.container}>
-      <StatusBar />
       <View style={styles.mainContainer}>
-        <Image source={logo} resizeMode={'center'} style={styles.imageStyle} />
+        <Image source={logo} resizeMode={'center'} style={styles.logo} />
         <View style={styles.bodyContainer}>
           <TextInput
-            placeholder="이메일"
+            placeholder="  이메일"
             style={styles.TextInput}
             onChange={value => setInputEmail(value.nativeEvent.text)}
             returnKeyType={'next'}
             autoComplete={'email'}
           />
           <TextInput
-            placeholder="비밀번호"
+            placeholder="  비밀번호"
             style={styles.TextInput}
             onChange={value => setInputPassword(value.nativeEvent.text)}
             returnKeyType={'next'}
@@ -69,19 +60,18 @@ export default function LoginScreen({navigation}) {
             secureTextEntry={true}
           />
           <View style={styles.buttonContainer}>
-            <Button
-              title="로그인"
-              // onPress={() => navigation.navigate('홈')}
-              // onPress={signInSubmit({inputEmail, inputPassword})}
-              onPress={() => signInSubmit(inputEmail, inputPassword)}
-            />
-            <Button
-              title="회원가입"
-              onPress={() => navigation.navigate('회원가입')}
-            />
+            <TouchableOpacity
+              style={[styles.signButton, {backgroundColor: '#90D7FF'}]}
+              onPress={() => signInSubmit(inputEmail, inputPassword)}>
+              <Text style={styles.textInButton}>로그인</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.signButton, {backgroundColor: 'white'}]}
+              onPress={() => navigation.navigate('회원가입')}>
+              <Text style={styles.textInButton}>회원가입</Text>
+            </TouchableOpacity>
           </View>
         </View>
-        <StatusBar style="auto" />
       </View>
     </View>
   );
@@ -89,37 +79,40 @@ export default function LoginScreen({navigation}) {
 
 const styles = StyleSheet.create({
   container: {
-    // width: '90%',
-    flex: 1,
+    height: '100%',
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
+    justifyContent: 'space-around',
   },
   mainContainer: {
-    // width: '100%',
-    justifyContent: 'center',
     alignSelf: 'center',
   },
   bodyContainer: {
-    flex: 1,
     alignSelf: 'center',
-    justifyContent: 'center',
-  },
-  imageStyle: {
-    flex: 1,
   },
   TextInput: {
     height: 40,
-    width: 150,
-    borderRadius: 10,
+    width: 200,
+    borderRadius: 15,
     borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 5,
+    fontSize: 18,
+    fontFamily: 'BMJUA',
   },
   buttonContainer: {
-    padding: 10,
+    width: 200,
+    marginTop: 10,
     justifyContent: 'space-between',
     flexDirection: 'row',
+  },
+  signButton: {
+    width: 95,
+    padding: 10,
+    borderRadius: 15,
+    elevation: 5,
+  },
+  textInButton: {
+    fontFamily: 'BMJUA',
+    textAlign: 'center',
   },
 });

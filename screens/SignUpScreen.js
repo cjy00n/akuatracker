@@ -23,7 +23,7 @@ export default function SignUpScreen({navigation}) {
   const [weight, setWeight] = useState(50);
   const [age, setage] = useState(20);
   const [genderId, setGenderId] = useState(0);
-  const [significant, setSignificant] = useState('');
+  const [significant, setSignificant] = useState('없음');
   const [daily_intake, setDailyIntake] = useState(weight * 30); //단위ml
   const [unit_intake, setUnitIntake] = useState(100); //단위ml
   const [open, setOpen] = useState(false);
@@ -69,10 +69,17 @@ export default function SignUpScreen({navigation}) {
       <ScrollView>
         <View style={styles.mainContainer}>
           <View style={styles.middleContainer}>
-            <Text style={styles.headerText}>계정</Text>
+            <Text style={styles.headerText}>🔒 계정</Text>
             <View style={styles.contentContainer}>
               <Text style={styles.contentText}>이메일</Text>
-              <Button title={'중복확인'}></Button>
+              <TouchableOpacity>
+                <Text
+                  style={{
+                    fontFamily: 'BMJUA',
+                  }}>
+                  중복확인
+                </Text>
+              </TouchableOpacity>
               <TextInput
                 textContentType="emailAddress"
                 placeholder="sobok_kim00@gmail.com"
@@ -99,45 +106,55 @@ export default function SignUpScreen({navigation}) {
             </View>
             <View style={styles.contentContainer}>
               <Text style={styles.contentText}>닉네임</Text>
-              <TextInput placeholder="김소복" style={styles.TextInput} />
-            </View>
-          </View>
-          <View style={styles.middleContainer}>
-            <Text style={styles.headerText}>신체정보</Text>
-            <View style={styles.contentContainer}>
-              <Text style={styles.contentText}>신장</Text>
-              <TextInput placeholder="160" style={styles.TextInput} />
-              <Text style={styles.contentText}>cm</Text>
-            </View>
-            <View style={styles.contentContainer}>
-              <Text style={styles.contentText}>체중</Text>
-              <TextInput placeholder="50" style={styles.TextInput} />
-              <Text style={styles.contentText}>kg</Text>
-            </View>
-            <View style={styles.contentContainer}>
-              <Text style={styles.contentText}>나이</Text>
-              <Text style={styles.contentText}>만</Text>
-              <TextInput placeholder="24" style={styles.TextInput} />
-              <Text style={styles.contentText}>세</Text>
-            </View>
-            <View style={styles.contentContainer}>
-              <Text style={styles.contentText}>성별</Text>
-              <RadioGroup
-                radioButtons={[
-                  {id: 0, label: '남성', value: '남'},
-                  {id: 1, label: '여성', value: '여'},
-                ]}
-                onPress={id => setGenderId(id)}
-                selectedId={genderId}
-                layout="row"
+              <TextInput
+                placeholder="김소복"
+                style={styles.TextInput}
+                onChange={value => setDisplayName(value.nativeEvent.text)}
               />
             </View>
           </View>
           <View style={styles.middleContainer}>
-            <Text style={styles.headerText}>일일섭취량</Text>
+            <Text style={styles.headerText}>🏃🏻‍♂️ 신체 정보</Text>
+            <View style={{flexDirection: 'row'}}>
+              <View style={styles.contentContainer}>
+                <Text style={styles.contentText}>신장</Text>
+                <TextInput placeholder="160" style={styles.TextInput} />
+                <Text style={styles.contentText}>cm</Text>
+              </View>
+              <View style={styles.contentContainer}>
+                <Text style={styles.contentText}>체중</Text>
+                <TextInput placeholder="50" style={styles.TextInput} />
+                <Text style={styles.contentText}>kg</Text>
+              </View>
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <View style={styles.contentContainer}>
+                <Text style={styles.contentText}>나이</Text>
+                <Text style={styles.contentText}> 만</Text>
+                <TextInput placeholder="24" style={styles.TextInput} />
+                <Text style={styles.contentText}>세</Text>
+              </View>
+              <View style={styles.contentContainer}>
+                <Text style={styles.contentText}>성별</Text>
+                <RadioGroup
+                  radioButtons={[
+                    {id: 0, label: '남성', value: '남'},
+                    {id: 1, label: '여성', value: '여'},
+                  ]}
+                  onPress={id => setGenderId(id)}
+                  selectedId={genderId}
+                  layout="row"
+                />
+              </View>
+            </View>
+          </View>
+          <View style={styles.middleContainer}>
+            <Text style={styles.headerText}>💦 일일 섭취량</Text>
             <View style={styles.contentContainer}>
               <Text style={styles.contentText}>특이사항</Text>
               <DropDownPicker
+                value={significant}
+                style={{width: 90, height: 35}}
                 items={[
                   {label: '없음', value: '없음'},
                   {label: '임산부', value: '임산부'},
@@ -148,10 +165,10 @@ export default function SignUpScreen({navigation}) {
             </View>
             <Text style={styles.contentText}>일일섭취량</Text>
           </View>
-          <Button
-            title={'회원가입완료'}
-            onPress={() => signUpSubmit(inputEmail, inputPassword)}
-          />
+          <TouchableOpacity
+            onPress={() => signUpSubmit(inputEmail, inputPassword)}>
+            <Text style={styles.completeButton}>회원가입완료</Text>
+          </TouchableOpacity>
           <StatusBar style="auto" />
         </View>
       </ScrollView>
@@ -161,36 +178,56 @@ export default function SignUpScreen({navigation}) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
-    alignItems: 'flex-start',
+    height: '100%',
+    backgroundColor: 'white',
   },
   mainContainer: {
+    justifyContent: 'space-around',
     width: '100%',
-    justifyContent: 'space-between',
   },
   headerText: {
-    fontSize: 30,
+    padding: 5,
+    margin: 5,
+    fontSize: 20,
+    fontFamily: 'BMJUA',
   },
   contentText: {
-    fontSize: 20,
+    fontSize: 15,
+    fontFamily: 'BMJUA',
   },
   contentContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 10,
+    padding: 5,
   },
   middleContainer: {
-    borderRadius: 10,
+    alignSelf: 'center',
+    width: '95%',
+    borderRadius: 20,
+    margin: 5,
+    padding: 5,
     borderColor: 'gray',
-    borderWidth: 1,
-    margin: 10,
-    padding: 10,
+    borderWidth: 2,
   },
   TextInput: {
-    height: 40,
-    width: 150,
+    height: 35,
+    width: 90,
     borderRadius: 10,
     borderColor: 'gray',
     borderWidth: 1,
+    fontFamily: 'BMJUA',
+    fontSize: 13,
+  },
+  completeButton: {
+    fontFamily: 'BMJUA',
+    fontSize: 20,
+    textAlign: 'center',
+    alignSelf: 'center',
+    width: 200,
+    padding: 10,
+    margin: 20,
+    borderRadius: 15,
+    elevation: 10,
+    backgroundColor: '#90D7FF',
   },
 });

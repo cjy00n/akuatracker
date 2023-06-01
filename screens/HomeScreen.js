@@ -4,13 +4,18 @@ import {
   Text,
   View,
   Image,
-  TextInput,
-  TouchableOpacity,
   Button,
+  TouchableOpacity,
 } from 'react-native';
 import {getUser} from '../lib/user';
 import {subscribeAuth} from '../lib/auth';
 import logo from '../assets/logo.png';
+import chart from '../assets/icon/icon_chart.png';
+import setting from '../assets/icon/icon-setting.png';
+import CustomButton from '../components/CustomButton';
+import waterImg from '../assets/water.png';
+// import {CircularProgressbar} from 'react-circular-progressbar';
+// import "react-circular-progressbar/dist/styles.css"
 
 export default function HomeScreen({navigation}) {
   const [percent, setPercent] = useState(60);
@@ -31,95 +36,101 @@ export default function HomeScreen({navigation}) {
         const info = await getUser(user.uid);
         setUserInfo(info);
       } else {
+        console.log('유저 정보가 없습니다.');
+        navigation.navigate('로그인');
       }
     });
   }, []);
 
   return (
     <View style={styles.container}>
-      {/* <View
-        style={{
-          backgroundColor: "#FFFFFF",
-          zIndex: 1,
-          position: "absolute",
-        }}
-      >
-        <Text></Text>
-      </View>
-      <View
-        style={{
-          backgroundColor: "#90D7FF",
-          zIndex: 1,
-          position: "absolute",
-        }}
-      >
-        <Text></Text>
-      </View> */}
-      <View style={{width: '100%'}}>
-        <View style={styles.topContainer}>
+      <View style={styles.topContainer}>
+        <View style={{}}>
           <Image source={logo} resizeMode={'cover'} style={styles.imageStyle} />
-          <Button
-            title="설정"
+        </View>
+        <View style={{}}>
+          <TouchableOpacity
             style={styles.settingButton}
-            onPress={() => navigation.navigate('설정')}
-          />
+            onPress={() => navigation.navigate('설정')}>
+            <Image style={styles.settingImg} source={setting} />
+          </TouchableOpacity>
         </View>
-        <View style={styles.middleContainer}>
-          <Text>오늘의 목표량을</Text>
-          <Text>
-            {Math.ceil((currentIntake / userInfo.daily_intake) * 100)}%
-            달성했어요
-          </Text>
-          <Button
-            title="마셨어요"
-            onPress={() => setCurrentIntake(currentIntake + 100)}
-          />
-          <Text>
-            {currentIntake}ml / {userInfo.daily_intake}ml
-          </Text>
-        </View>
-        <Button
-          title="나의 통계"
-          style={styles.buttonContainer}
-          onPress={() => navigation.navigate('통계')}
-        />
       </View>
+      <View style={styles.middleContainer}>
+        <Text style={styles.middleText}>
+          오늘의 목표량을{'\n'}
+          {Math.ceil((currentIntake / userInfo.daily_intake) * 100)}%
+          달성했어요💦
+        </Text>
+        <Image source={waterImg} />
+        <TouchableOpacity
+          onPress={() => setCurrentIntake(currentIntake + 100)}
+          style={styles.drinkButton}>
+          <Text>💧 마셨어요</Text>
+        </TouchableOpacity>
+        <Text>
+          {currentIntake}ml / {userInfo.daily_intake}ml
+        </Text>
+      </View>
+      <CustomButton
+        icon={chart}
+        text={'나의 통계 확인하기'}
+        onPress={() => navigation.navigate('통계')}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    width: '100%',
+    height: '100%',
+    backgroundColor: '#90D7FF',
   },
   topContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
+    // justifyContent: 'flex-end',
+    // alignItems: 'center',
   },
   imageStyle: {
+    alignSelf: 'center',
+    // position: 'absolute',
+    zIndex: 1,
     height: 50,
     width: 150,
   },
   settingButton: {
-    alignContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
+    // alignContent: 'center',
+    // alignItems: 'center',
   },
-  buttonContainer: {
-    margin: 10,
-    padding: 5,
-    borderRadius: 2,
-    borderColor: 'gray',
-    borderWidth: 1,
-    alignItems: 'center',
+  settingImg: {
+    width: 48,
+    height: 48,
   },
   middleContainer: {
-    margin: 10,
-    padding: 5,
-    borderRadius: 2,
-    borderColor: 'gray',
-    borderWidth: 1,
+    margin: 20,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: 'white',
     alignItems: 'center',
+  },
+  middleText: {
+    fontSize: 30,
+    justifyContent: 'flex-start',
+    fontFamily: 'BMJUA',
+    margin: 10,
+  },
+  drinkButton: {
+    position: 'absolute',
+    top: 210,
+    left: 115,
+    right: 115,
+    bottom: 110,
+    padding: 10,
+    margin: 10,
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 15,
+    elevation: 10,
   },
 });
