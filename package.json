@@ -24,7 +24,11 @@
     "react-native-chart-kit": "^6.12.0",
     "react-native-dropdown-picker": "^5.4.6",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "react-native-paper": "^5.8.0",
+=======
+    "react-native-picker-select": "^8.0.4",
+>>>>>>> e959e1ec3cece15f48a59df34f0c53cfbb8130a7
 =======
     "react-native-picker-select": "^8.0.4",
 >>>>>>> e959e1ec3cece15f48a59df34f0c53cfbb8130a7
