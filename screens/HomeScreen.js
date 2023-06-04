@@ -5,6 +5,7 @@ import {
   View,
   Image,
   Button,
+  Modal,
   TouchableOpacity,
 } from 'react-native';
 import {getUser} from '../lib/user';
@@ -14,6 +15,7 @@ import chart from '../assets/icon/icon_chart.png';
 import setting from '../assets/icon/icon-setting.png';
 import CustomButton from '../components/CustomButton';
 import waterImg from '../assets/water.png';
+import DropDownPicker from 'react-native-dropdown-picker';
 // import {CircularProgressbar} from 'react-circular-progressbar';
 // import "react-circular-progressbar/dist/styles.css"
 
@@ -30,6 +32,15 @@ export default function HomeScreen({navigation}) {
     weight: 0,
   });
   const [currentIntake, setCurrentIntake] = useState(0);
+  const [visible, setVisible] = useState(false);
+
+  const showDialog = () => {
+    setVisible(true);
+  };
+
+  const hideDialog = () => {
+    setVisible(false);
+  };
   useEffect(() => {
     subscribeAuth(async user => {
       if (user) {
@@ -44,11 +55,11 @@ export default function HomeScreen({navigation}) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topContainer}>
-        <View style={{}}>
+      <View style={[styles.topContainer, {justifyContent: 'flex-end'}]}>
+        {/* <View style={{}}>
           <Image source={logo} resizeMode={'cover'} style={styles.imageStyle} />
-        </View>
-        <View style={{}}>
+        </View> */}
+        <View>
           <TouchableOpacity
             style={styles.settingButton}
             onPress={() => navigation.navigate('설정')}>
@@ -64,14 +75,66 @@ export default function HomeScreen({navigation}) {
         </Text>
         <Image source={waterImg} />
         <TouchableOpacity
-          onPress={() => setCurrentIntake(currentIntake + 100)}
+          // onPress={() => setCurrentIntake(currentIntake + 100)}
+          onPress={showDialog}
           style={styles.drinkButton}>
-          <Text>💧 마셨어요</Text>
+          <Text style={styles.drinkText}>💧 마셨어요</Text>
         </TouchableOpacity>
         <Text>
           {currentIntake}ml / {userInfo.daily_intake}ml
         </Text>
       </View>
+      <Modal visible={visible} animationType="slide" transparent>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}>
+          <View
+            style={{backgroundColor: 'white', padding: 16, borderRadius: 20}}>
+            <Text
+              style={[
+                styles.ButtonText,
+                {fontSize: 30, margin: 10, padding: 10},
+              ]}>
+              💙
+            </Text>
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+              <TouchableOpacity
+                style={[styles.setIntakeButton, {backgroundColor: 'white'}]}>
+                <Text style={styles.ButtonText}>100ml ▼</Text>
+              </TouchableOpacity>
+              <Text
+                style={[
+                  styles.ButtonText,
+                  {
+                    margin: 5,
+                    alignSelf: 'center',
+                  },
+                ]}>
+                를 기록할까요?
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity
+                style={styles.Button}
+                // onPress={[{hideDialog}, setCurrentIntake(currentIntake + 100)]}
+              >
+                <Text style={styles.ButtonText}>맞아요</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.Button, {backgroundColor: 'white'}]}
+                onPress={hideDialog}>
+                <Text style={[styles.ButtonText, {color: 'gray'}]}>
+                  아니에요
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <CustomButton
         icon={chart}
         text={'나의 통계 확인하기'}
@@ -100,15 +163,15 @@ const styles = StyleSheet.create({
   },
   settingButton: {
     justifyContent: 'flex-end',
-    // alignContent: 'center',
-    // alignItems: 'center',
+    margin: 10,
   },
   settingImg: {
     width: 48,
     height: 48,
   },
   middleContainer: {
-    margin: 20,
+    marginRight: 20,
+    marginLeft: 20,
     padding: 20,
     borderRadius: 20,
     backgroundColor: 'white',
@@ -123,14 +186,43 @@ const styles = StyleSheet.create({
   drinkButton: {
     position: 'absolute',
     top: 210,
-    left: 115,
+    left: 105,
     right: 115,
     bottom: 110,
-    padding: 10,
     margin: 10,
+    width: 100,
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 15,
     elevation: 10,
+  },
+  drinkText: {
+    position: 'absolute',
+    fontSize: 17,
+    justifyContent: 'flex-start',
+    fontFamily: 'BMJUA',
+    margin: 10,
+  },
+  setIntakeButton: {
+    alignSelf: 'center',
+    width: 80,
+    padding: 10,
+    borderRadius: 15,
+    elevation: 10,
+    backgroundColor: '#90D7FF',
+  },
+  Button: {
+    alignSelf: 'center',
+    width: 80,
+    padding: 10,
+    margin: 20,
+    borderRadius: 15,
+    elevation: 10,
+    backgroundColor: '#90D7FF',
+  },
+  ButtonText: {
+    fontSize: 15,
+    textAlign: 'center',
+    fontFamily: 'BMJUA',
   },
 });

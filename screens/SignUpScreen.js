@@ -1,28 +1,28 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TextInput,
   TouchableOpacity,
-  LogBox,
   ScrollView,
   StatusBar,
-  Button,
 } from 'react-native';
 import {RadioGroup} from 'react-native-radio-buttons-group';
+import {RadioButton} from 'react-native-paper';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {Alert} from 'react-native';
 import {signUp, subscribeAuth} from '../lib/auth';
 import {createUser, getUser} from '../lib/user';
+
 export default function SignUpScreen({navigation}) {
   const [inputEmail, setInputEmail] = useState(' ');
   const [inputPassword, setInputPassword] = useState(' ');
   const [displayName, setDisplayName] = useState(' ');
   const [height, setHeight] = useState(160);
   const [weight, setWeight] = useState(50);
-  const [age, setage] = useState(20);
-  const [genderId, setGenderId] = useState(0);
+  const [age, setAge] = useState(20);
+  const [gender, setGender] = useState('남성');
   const [significant, setSignificant] = useState('없음');
   const [daily_intake, setDailyIntake] = useState(weight * 30); //단위ml
   const [unit_intake, setUnitIntake] = useState(100); //단위ml
@@ -42,7 +42,7 @@ export default function SignUpScreen({navigation}) {
         height,
         weight,
         age,
-        gender: genderId == 0 ? '남' : '여',
+        gender,
         significant,
         daily_intake,
         unit_intake,
@@ -71,15 +71,16 @@ export default function SignUpScreen({navigation}) {
           <View style={styles.middleContainer}>
             <Text style={styles.headerText}>🔒 계정</Text>
             <View style={styles.contentContainer}>
-              <Text style={styles.contentText}>이메일</Text>
-              <TouchableOpacity>
-                <Text
-                  style={{
-                    fontFamily: 'BMJUA',
-                  }}>
-                  중복확인
-                </Text>
-              </TouchableOpacity>
+              <View
+                style={{
+                  flexDirection: 'row',
+                }}>
+                <Text style={styles.contentText}>이메일</Text>
+                <TouchableOpacity style={styles.DoubleCheckButton}>
+                  <Text style={styles.ButtonText}>중복확인</Text>
+                </TouchableOpacity>
+              </View>
+
               <TextInput
                 textContentType="emailAddress"
                 placeholder="sobok_kim00@gmail.com"
@@ -97,7 +98,7 @@ export default function SignUpScreen({navigation}) {
                 onChange={value => setInputPassword(value.nativeEvent.text)}
                 returnKeyType={'next'}
                 autoComplete={'password'}
-                secureTextEntry={true}
+                // secureTextEntry={true}
               />
             </View>
             <View style={styles.contentContainer}>
@@ -115,34 +116,59 @@ export default function SignUpScreen({navigation}) {
           </View>
           <View style={styles.middleContainer}>
             <Text style={styles.headerText}>🏃🏻‍♂️ 신체 정보</Text>
-            <View style={{flexDirection: 'row'}}>
+            <View style={styles.contentContainer}>
+              <Text style={styles.contentText}>신장</Text>
               <View style={styles.contentContainer}>
-                <Text style={styles.contentText}>신장</Text>
-                <TextInput placeholder="160" style={styles.TextInput} />
-                <Text style={styles.contentText}>cm</Text>
-              </View>
-              <View style={styles.contentContainer}>
-                <Text style={styles.contentText}>체중</Text>
-                <TextInput placeholder="50" style={styles.TextInput} />
-                <Text style={styles.contentText}>kg</Text>
+                <TextInput
+                  placeholder="160"
+                  style={styles.TextInput}
+                  onChange={value => setHeight(value.nativeEvent.text)}
+                />
+                <Text style={styles.contentText}> cm</Text>
               </View>
             </View>
-            <View style={{flexDirection: 'row'}}>
+            <View style={styles.contentContainer}>
+              <Text style={styles.contentText}>체중</Text>
               <View style={styles.contentContainer}>
-                <Text style={styles.contentText}>나이</Text>
-                <Text style={styles.contentText}> 만</Text>
-                <TextInput placeholder="24" style={styles.TextInput} />
-                <Text style={styles.contentText}>세</Text>
+                <TextInput
+                  placeholder="50"
+                  style={styles.TextInput}
+                  onChange={value => setWeight(value.nativeEvent.text)}
+                />
+                <Text style={styles.contentText}> kg</Text>
               </View>
+            </View>
+            <View style={styles.contentContainer}>
+              <Text style={styles.contentText}>나이</Text>
               <View style={styles.contentContainer}>
-                <Text style={styles.contentText}>성별</Text>
+                <Text style={styles.contentText}> 만 </Text>
+                <TextInput
+                  placeholder="24"
+                  style={styles.TextInput}
+                  onChange={value => setAge(value.nativeEvent.text)}
+                />
+                <Text style={styles.contentText}> 세</Text>
+              </View>
+            </View>
+            <View style={styles.contentContainer}>
+              <Text style={styles.contentText}>성별</Text>
+              {/* <View style={{flexDirection: 'row'}}>
+                  <RadioButton.Group
+                    style={{flexDirection: 'row'}}
+                    onValueChange={setGender}
+                    value={gender}>
+                    <RadioButton.Item lavel="남성" value="남성" />\
+                    <RadioButton.Item lavel="여성" value="여성" />
+                  </RadioButton.Group>
+                </View> */}
+              <View style={styles.contentContainer}>
                 <RadioGroup
                   radioButtons={[
                     {id: 0, label: '남성', value: '남'},
                     {id: 1, label: '여성', value: '여'},
                   ]}
-                  onPress={id => setGenderId(id)}
-                  selectedId={genderId}
+                  onPress={value => setGender(value)}
+                  selectedId={gender == '남성' ? 0 : 1}
                   layout="row"
                 />
               </View>
@@ -150,7 +176,7 @@ export default function SignUpScreen({navigation}) {
           </View>
           <View style={styles.middleContainer}>
             <Text style={styles.headerText}>💦 일일 섭취량</Text>
-            <View style={styles.contentContainer}>
+            {/* <View style={styles.contentContainer}>
               <Text style={styles.contentText}>특이사항</Text>
               <DropDownPicker
                 value={significant}
@@ -162,14 +188,35 @@ export default function SignUpScreen({navigation}) {
                   {label: '운동마니아', value: '운동마니아'},
                 ]}
               />
+            </View> */}
+            <View style={styles.contentContainer}>
+              <Text style={styles.contentText}>일일 목표 섭취량</Text>
+              <View style={styles.contentContainer}>
+                <TextInput
+                  placeholder={`(권장) ${weight * 30}`}
+                  onChange={value => setDailyIntake(value.nativeEvent.text)}
+                  style={styles.TextInput}
+                />
+                <Text style={styles.contentText}> ml</Text>
+              </View>
             </View>
-            <Text style={styles.contentText}>일일섭취량</Text>
+            <View style={styles.contentContainer}>
+              <Text style={styles.contentText}>1회 섭취량</Text>
+              <View style={styles.contentContainer}>
+                <TextInput
+                  placeholder="100ml"
+                  style={styles.TextInput}
+                  onChange={value => setUnitIntake(value.nativeEvent.text)}
+                />
+                <Text style={styles.contentText}> ml</Text>
+              </View>
+            </View>
           </View>
           <TouchableOpacity
+            style={styles.completeButton}
             onPress={() => signUpSubmit(inputEmail, inputPassword)}>
-            <Text style={styles.completeButton}>회원가입완료</Text>
+            <Text style={styles.ButtonText}>회원가입완료</Text>
           </TouchableOpacity>
-          <StatusBar style="auto" />
         </View>
       </ScrollView>
     </View>
@@ -197,34 +244,45 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 5,
+    padding: 3,
   },
   middleContainer: {
     alignSelf: 'center',
-    width: '95%',
+    width: '90%',
     borderRadius: 20,
-    margin: 5,
+    margin: 10,
     padding: 5,
     borderColor: 'gray',
     borderWidth: 2,
   },
   TextInput: {
     height: 35,
-    width: 90,
+    width: 150,
     borderRadius: 10,
     borderColor: 'gray',
     borderWidth: 1,
     fontFamily: 'BMJUA',
     fontSize: 13,
   },
-  completeButton: {
+  DoubleCheckButton: {
+    marginLeft: 10,
+    elevation: 10,
+    width: 60,
+    height: 25,
+    borderRadius: 5,
+    backgroundColor: 'white',
+    justifyContent: 'center',
+  },
+  ButtonText: {
     fontFamily: 'BMJUA',
-    fontSize: 20,
     textAlign: 'center',
+  },
+  completeButton: {
     alignSelf: 'center',
     width: 200,
-    padding: 10,
+    padding: 15,
     margin: 20,
     borderRadius: 15,
     elevation: 10,

@@ -57,7 +57,7 @@ export default function LoginScreen({navigation}) {
             onChange={value => setInputPassword(value.nativeEvent.text)}
             returnKeyType={'next'}
             autoComplete={'password'}
-            secureTextEntry={true}
+            // secureTextEntry={true}
           />
           <View style={styles.buttonContainer}>
             <TouchableOpacity
