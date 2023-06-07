@@ -51,7 +51,7 @@ export default function HomeScreen({navigation}) {
         navigation.navigate('로그인');
       }
     });
-  }, []);
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -78,9 +78,9 @@ export default function HomeScreen({navigation}) {
           // onPress={() => setCurrentIntake(currentIntake + 100)}
           onPress={showDialog}
           style={styles.drinkButton}>
-          <Text style={styles.drinkText}>💧 마셨어요</Text>
+          <Text style={styles.drinkText}>💧마셨어요</Text>
         </TouchableOpacity>
-        <Text>
+        <Text style={styles.showIntake}>
           {currentIntake}ml / {userInfo.daily_intake}ml
         </Text>
       </View>
@@ -120,7 +120,7 @@ export default function HomeScreen({navigation}) {
             <View style={{flexDirection: 'row'}}>
               <TouchableOpacity
                 style={styles.Button}
-                // onPress={[{hideDialog}, setCurrentIntake(currentIntake + 100)]}
+                // onPress={setCurrentIntake(currentIntake + 100)}
               >
                 <Text style={styles.ButtonText}>맞아요</Text>
               </TouchableOpacity>
@@ -151,12 +151,9 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     flexDirection: 'row',
-    // justifyContent: 'flex-end',
-    // alignItems: 'center',
   },
   imageStyle: {
     alignSelf: 'center',
-    // position: 'absolute',
     zIndex: 1,
     height: 50,
     width: 150,
@@ -172,25 +169,27 @@ const styles = StyleSheet.create({
   middleContainer: {
     marginRight: 20,
     marginLeft: 20,
+    marginBottom: 10,
     padding: 20,
     borderRadius: 20,
     backgroundColor: 'white',
     alignItems: 'center',
+    elevation: 10,
   },
   middleText: {
     fontSize: 30,
     justifyContent: 'flex-start',
     fontFamily: 'BMJUA',
-    margin: 10,
+    margin: 20,
   },
   drinkButton: {
     position: 'absolute',
-    top: 210,
-    left: 105,
-    right: 115,
-    bottom: 110,
+    top: 225,
+    left: 110,
+    right: 110,
+    bottom: 155,
     margin: 10,
-    width: 100,
+    width: 110,
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 15,
@@ -199,9 +198,14 @@ const styles = StyleSheet.create({
   drinkText: {
     position: 'absolute',
     fontSize: 17,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     fontFamily: 'BMJUA',
     margin: 10,
+  },
+  showIntake: {
+    margin: 20,
+    fontSize: 20,
+    fontFamily: 'BMJUA',
   },
   setIntakeButton: {
     alignSelf: 'center',

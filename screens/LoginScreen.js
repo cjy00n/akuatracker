@@ -30,7 +30,7 @@ export default function LoginScreen({navigation}) {
         'auth/user-not-found': '존재하지 않는 계정입니다.',
         'auth/invalid-email': '유효하지 않은 이메일 주소입니다.',
       };
-      const msg = `로그인실패`;
+      const msg = '로그인실패';
       console.log(e);
       Alert.alert('실패', msg);
     }
@@ -55,7 +55,7 @@ export default function LoginScreen({navigation}) {
             placeholder="  비밀번호"
             style={styles.TextInput}
             onChange={value => setInputPassword(value.nativeEvent.text)}
-            returnKeyType={'next'}
+            returnKeyType={'done'}
             autoComplete={'password'}
             // secureTextEntry={true}
           />
