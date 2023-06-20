@@ -1,6 +1,10 @@
 import { StyleSheet, Text, View, Image, TextInput, Button, ScrollView, TouchableOpacity, } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { signOutAuth } from '../lib/auth';
+import { useNavigation } from '@react-navigation/native';
+import database from '@react-native-firebase/app';
+
 
 export default function UserSettingScreen({ navigation }) {
   const [selectedValue1, setSelectedValue1] = useState(null);
@@ -10,8 +14,8 @@ export default function UserSettingScreen({ navigation }) {
   const [isOpen2, setIsOpen2] = useState(false);
 
   const items1 = [
-    { label: '남성', value: '남' },
-    { label: '여성', value: '여' },
+    { label: '남성', value: '남성' },
+    { label: '여성', value: '여성' },
   ];
 
   const items2 = [
@@ -37,7 +41,25 @@ export default function UserSettingScreen({ navigation }) {
       setValues((prevValues) => ({ ...prevValues, [id]: text }));
     }
   };
-  
+
+  // 로그아웃 후 로그인 화면으로
+  const logout = () => {
+    signOutAuth();
+    navigation.navigate("로그인");
+  }
+
+  const setPhysical = () => {
+    database()
+      .ref('/test/123')
+      .set({
+        height: 150,
+        weight: 44,
+        age: 23,
+        gender: '여성'
+      })
+      .then(() => console.log('Data set.'));
+  }
+
 
   return (
     <ScrollView style={styles.container}>
@@ -51,6 +73,7 @@ export default function UserSettingScreen({ navigation }) {
           <Text style={styles.text}>📝 신체 정보 설정 </Text>
           <TouchableOpacity
             //onPress={() => setCurrentIntake(currentIntake + 100)}
+            
             style={{
               width: 60,
               height: 30,
@@ -137,24 +160,6 @@ export default function UserSettingScreen({ navigation }) {
             <Text style={styles.textChange}>변경</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.physical3}>
-          <Text style={styles.text2}>특이사항</Text>
-          <DropDownPicker
-            open={isOpen2}
-            setOpen={setIsOpen2}
-            items={items2}
-            containerStyle={{ height: 10, width: 120 }}
-            value={selectedValue2}
-            setValue={setSelectedValue2}
-            placeholder='선택'
-            listMode='MODAL'
-            modalProps={{
-              animationType: 'fade',
-            }}
-            modalTitle="특이사항을 선택해주세요."
-            onClose={() => setIsOpen2(false)} // 드롭다운 메뉴가 닫힐 때 setOpen 상태를 false로 설정
-          />
-        </View>
         <View style={styles.physical}>
           <Text style={styles.text2}>일일 목표 섭취량</Text>
           <TextInput
@@ -176,7 +181,7 @@ export default function UserSettingScreen({ navigation }) {
             style={styles.TextInput2}
             placeholder=' 김소복'></TextInput>
           <TouchableOpacity
-            //onPress={() => setCurrentIntake(currentIntake + 100)}
+      
             style={{
               width: 60,
               height: 30,
@@ -228,7 +233,7 @@ export default function UserSettingScreen({ navigation }) {
 
       <View style={styles.top}>
         <TouchableOpacity
-          //onPress={() => setCurrentIntake(currentIntake + 100)}
+          onPress={() => logout()}
           style={styles.logoutBtn}>
           <Text style={styles.logout}>로그아웃</Text>
         </TouchableOpacity>
