@@ -9,6 +9,7 @@ import {
 import CustomButton from '../components/CustomButton';
 import setting from '../assets/icon/icon-setting.png';
 import usersetting from '../assets/icon/icon-usersetting.png';
+
 export default function Setting({navigation}) {
   return (
     <View style={styles.container}>

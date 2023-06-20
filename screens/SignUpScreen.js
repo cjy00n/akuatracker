@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+/* eslint-disable react/self-closing-comp */
+import React, {useState, useRef} from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,54 +17,93 @@ import {signUp, subscribeAuth} from '../lib/auth';
 import {createUser, getUser} from '../lib/user';
 
 export default function SignUpScreen({navigation}) {
-  const [inputEmail, setInputEmail] = useState(' ');
-  const [inputPassword, setInputPassword] = useState(' ');
-  const [displayName, setDisplayName] = useState(' ');
-  const [height, setHeight] = useState(160);
-  const [weight, setWeight] = useState(50);
-  const [age, setAge] = useState(20);
+  const inputEmailRef = useRef();
+  const inputPasswordRef = useRef();
+  const inputCheckPasswordRef = useRef();
+  const inputDisplayNameRef = useRef();
+  const inputHeightRef = useRef();
+  const inputWeightRef = useRef();
+  const inputAgeRef = useRef();
+  const inputDailyIntakeRef = useRef();
+  const inputUnitIntakeRef = useRef();
+  const inputRefs = [
+    inputEmailRef,
+    inputPasswordRef,
+    inputCheckPasswordRef,
+    inputDisplayNameRef,
+    inputHeightRef,
+    inputWeightRef,
+    inputAgeRef,
+    inputDailyIntakeRef,
+    inputUnitIntakeRef,
+  ];
+  const [inputEmail, setInputEmail] = useState('');
+  const [inputPassword, setInputPassword] = useState('');
+  const [inputCheckPassword, setInputCheckPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [height, setHeight] = useState();
+  const [weight, setWeight] = useState(60);
+  const [age, setAge] = useState();
   const [gender, setGender] = useState('남성');
-  const [significant, setSignificant] = useState('없음');
   const [daily_intake, setDailyIntake] = useState(weight * 30); //단위ml
   const [unit_intake, setUnitIntake] = useState(100); //단위ml
-  const [open, setOpen] = useState(false);
-  // const [form, setForm] = useState({
-  //   email: 'abc1234@naver.com',
-  //   password: '123456',
-  //   confirmPassword: '',
-  // });
+  const states = [
+    inputEmail,
+    inputPassword,
+    inputCheckPassword,
+    displayName,
+    height,
+    weight,
+    age,
+    gender,
+    daily_intake,
+    unit_intake,
+  ];
   const signUpSubmit = async (email, password) => {
-    try {
-      console.log({email, password});
-      const {user} = await signUp({email, password});
-      createUser({
-        id: user.uid,
-        displayName,
-        height,
-        weight,
-        age,
-        gender,
-        significant,
-        daily_intake,
-        unit_intake,
-      });
-      navigation.navigate('홈');
-    } catch (e) {
-      const messages = {
-        'auth/email-already-in-use': '이미 가입된 이메일입니다.',
-        'auth/wrong-password': '잘못된 비밀번호입니다.',
-        'auth/user-not-found': '존재하지 않는 계정입니다.',
-        'auth/invalid-email': '유효하지 않은 이메일 주소입니다.',
-      };
-      const msg = `가입실패`;
-      console.log(e);
-      Alert.alert('실패', msg);
+    let isAnyFieldEmpty = false;
+    const checkPassword = inputPassword === inputCheckPassword;
+    if (checkPassword === false) {
+      inputCheckPasswordRef.current.focus();
+      Alert.alert('경고', '비밀번호가 일치하지 않습니다.');
     }
-    //  finally {
-    //   // setLoading(false);
-    // }
-  };
+    for (let i = 0; i < inputRefs.length; i++) {
+      if (states[i] === '' || states[i] === null) {
+        console.log(states[i]);
+        inputRefs[i]?.current.focus();
+        isAnyFieldEmpty = true;
+        Alert.alert('경고', '기입하지 않은 항목이 있습니다.');
+        break;
+      }
+    }
 
+    if (!isAnyFieldEmpty && checkPassword) {
+      try {
+        const {user} = await signUp({email, password});
+        createUser({
+          id: user.uid,
+          email: email,
+          displayName,
+          height,
+          weight,
+          age,
+          gender,
+          daily_intake,
+          unit_intake,
+        });
+        navigation.navigate('홈');
+      } catch (e) {
+        const messages = {
+          'auth/email-already-in-use': '이미 가입된 이메일입니다.',
+          'auth/wrong-password': '잘못된 비밀번호입니다.',
+          'auth/user-not-found': '존재하지 않는 계정입니다.',
+          'auth/invalid-email': '유효하지 않은 이메일 주소입니다.',
+        };
+        const msg = messages[e.code] || '가입 실패';
+        console.log(e);
+        Alert.alert('실패', msg);
+      }
+    }
+  };
   return (
     <View style={styles.container}>
       <ScrollView>
@@ -76,38 +116,75 @@ export default function SignUpScreen({navigation}) {
                   flexDirection: 'row',
                 }}>
                 <Text style={styles.contentText}>이메일</Text>
-                <TouchableOpacity style={styles.DoubleCheckButton}>
-                  <Text style={styles.ButtonText}>중복확인</Text>
-                </TouchableOpacity>
               </View>
-
               <TextInput
                 textContentType="emailAddress"
-                placeholder="sobok_kim00@gmail.com"
+                placeholder="abc1234@gmail.com"
                 style={styles.TextInput}
                 onChange={value => setInputEmail(value.nativeEvent.text)}
                 returnKeyType={'next'}
                 autoComplete={'email'}
+                ref={inputEmailRef}
               />
             </View>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontFamily: 'BMJUA',
+                fontSize: 10,
+              }}></Text>
             <View style={styles.contentContainer}>
               <Text style={styles.contentText}>비밀번호</Text>
               <TextInput
-                placeholder="********"
-                style={styles.TextInput}
+                ref={inputPasswordRef}
+                onSubmitEditing={() => {
+                  inputCheckPasswordRef.current.focus();
+                }}
+                blurOnSubmit={false}
+                placeholder="******"
+                style={[styles.TextInput, {fontFamily: null}]}
                 onChange={value => setInputPassword(value.nativeEvent.text)}
-                returnKeyType={'next'}
                 autoComplete={'password'}
-                // secureTextEntry={true}
+                secureTextEntry={true}
               />
             </View>
+            <Text style={styles.WarningText}>
+              {inputPassword.length > 0 && inputPassword.length < 6
+                ? '비밀번호는 6자 이상이어야 합니다.'
+                : ''}
+            </Text>
             <View style={styles.contentContainer}>
               <Text style={styles.contentText}>비밀번호 확인</Text>
-              <TextInput placeholder="********" style={styles.TextInput} />
+              <TextInput
+                placeholder="******"
+                style={[styles.TextInput, {fontFamily: null}]}
+                onChange={value =>
+                  setInputCheckPassword(value.nativeEvent.text)
+                }
+                onSubmitEditing={() => {
+                  inputDisplayNameRef.current.focus();
+                }}
+                blurOnSubmit={false}
+                returnKeyType={'next'}
+                autoComplete={'password'}
+                secureTextEntry={true}
+                ref={inputCheckPasswordRef}
+              />
             </View>
+            <Text style={styles.WarningText}>
+              {inputCheckPassword.length > 0 &&
+              inputPassword !== inputCheckPassword
+                ? '비밀번호가 다릅니다.'
+                : ''}
+            </Text>
             <View style={styles.contentContainer}>
               <Text style={styles.contentText}>닉네임</Text>
               <TextInput
+                onSubmitEditing={() => {
+                  inputHeightRef.current.focus();
+                }}
+                blurOnSubmit={false}
+                ref={inputDisplayNameRef}
                 placeholder="김소복"
                 style={styles.TextInput}
                 onChange={value => setDisplayName(value.nativeEvent.text)}
@@ -120,8 +197,14 @@ export default function SignUpScreen({navigation}) {
               <Text style={styles.contentText}>신장</Text>
               <View style={styles.contentContainer}>
                 <TextInput
+                  onSubmitEditing={() => {
+                    inputWeightRef.current.focus();
+                  }}
+                  blurOnSubmit={false}
+                  ref={inputHeightRef}
                   placeholder="160"
                   style={styles.TextInput}
+                  keyboardType={'numeric'}
                   onChange={value => setHeight(value.nativeEvent.text)}
                 />
                 <Text style={styles.contentText}> cm</Text>
@@ -131,7 +214,13 @@ export default function SignUpScreen({navigation}) {
               <Text style={styles.contentText}>체중</Text>
               <View style={styles.contentContainer}>
                 <TextInput
+                  onSubmitEditing={() => {
+                    inputAgeRef.current.focus();
+                  }}
+                  blurOnSubmit={false}
+                  ref={inputWeightRef}
                   placeholder="50"
+                  keyboardType={'numeric'}
                   style={styles.TextInput}
                   onChange={value => setWeight(value.nativeEvent.text)}
                 />
@@ -143,6 +232,12 @@ export default function SignUpScreen({navigation}) {
               <View style={styles.contentContainer}>
                 <Text style={styles.contentText}> 만 </Text>
                 <TextInput
+                  keyboardType={'numeric'}
+                  onSubmitEditing={() => {
+                    inputDailyIntakeRef.current.focus();
+                  }}
+                  blurOnSubmit={false}
+                  ref={inputAgeRef}
                   placeholder="24"
                   style={styles.TextInput}
                   onChange={value => setAge(value.nativeEvent.text)}
@@ -152,15 +247,6 @@ export default function SignUpScreen({navigation}) {
             </View>
             <View style={styles.contentContainer}>
               <Text style={styles.contentText}>성별</Text>
-              {/* <View style={{flexDirection: 'row'}}>
-                  <RadioButton.Group
-                    style={{flexDirection: 'row'}}
-                    onValueChange={setGender}
-                    value={gender}>
-                    <RadioButton.Item lavel="남성" value="남성" />\
-                    <RadioButton.Item lavel="여성" value="여성" />
-                  </RadioButton.Group>
-                </View> */}
               <View style={styles.contentContainer}>
                 <RadioGroup
                   radioButtons={[
@@ -168,7 +254,7 @@ export default function SignUpScreen({navigation}) {
                     {id: 1, label: '여성', value: '여'},
                   ]}
                   onPress={value => setGender(value)}
-                  selectedId={gender == '남성' ? 0 : 1}
+                  selectedId={gender === '남성' ? 0 : 1}
                   layout="row"
                 />
               </View>
@@ -176,23 +262,16 @@ export default function SignUpScreen({navigation}) {
           </View>
           <View style={styles.middleContainer}>
             <Text style={styles.headerText}>💦 일일 섭취량</Text>
-            {/* <View style={styles.contentContainer}>
-              <Text style={styles.contentText}>특이사항</Text>
-              <DropDownPicker
-                value={significant}
-                style={{width: 90, height: 35}}
-                items={[
-                  {label: '없음', value: '없음'},
-                  {label: '임산부', value: '임산부'},
-                  {label: '다이어터', value: '다이어터'},
-                  {label: '운동마니아', value: '운동마니아'},
-                ]}
-              />
-            </View> */}
             <View style={styles.contentContainer}>
               <Text style={styles.contentText}>일일 목표 섭취량</Text>
               <View style={styles.contentContainer}>
                 <TextInput
+                  keyboardType={'numeric'}
+                  onSubmitEditing={() => {
+                    inputUnitIntakeRef.current.focus();
+                  }}
+                  blurOnSubmit={false}
+                  ref={inputDailyIntakeRef}
                   placeholder={`(권장) ${weight * 30}`}
                   onChange={value => setDailyIntake(value.nativeEvent.text)}
                   style={styles.TextInput}
@@ -204,7 +283,13 @@ export default function SignUpScreen({navigation}) {
               <Text style={styles.contentText}>1회 섭취량</Text>
               <View style={styles.contentContainer}>
                 <TextInput
-                  placeholder="100ml"
+                  keyboardType={'numeric'}
+                  onSubmitEditing={() => {
+                    signUpSubmit(inputEmail, inputPassword);
+                  }}
+                  blurOnSubmit={false}
+                  ref={inputUnitIntakeRef}
+                  placeholder="100"
                   style={styles.TextInput}
                   onChange={value => setUnitIntake(value.nativeEvent.text)}
                 />
@@ -233,7 +318,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headerText: {
-    padding: 5,
+    padding: 10,
     margin: 5,
     fontSize: 20,
     fontFamily: 'BMJUA',
@@ -263,17 +348,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: 'gray',
     borderWidth: 1,
+    color: 'black',
     fontFamily: 'BMJUA',
     fontSize: 13,
   },
-  DoubleCheckButton: {
-    marginLeft: 10,
-    elevation: 10,
-    width: 60,
-    height: 25,
-    borderRadius: 5,
-    backgroundColor: 'white',
-    justifyContent: 'center',
+  WarningText: {
+    textAlign: 'center',
+    fontFamily: 'BMJUA',
+    fontSize: 10,
+    color: 'red',
   },
   ButtonText: {
     fontFamily: 'BMJUA',
