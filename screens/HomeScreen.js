@@ -18,7 +18,6 @@ import CustomButton from '../components/CustomButton';
 import waterImg from '../assets/water.png';
 import {TextInput} from 'react-native-paper';
 const moment = require('moment');
-// import {CircularProgressbar} from 'react-circular-progressbar';
 
 export default function HomeScreen({navigation}) {
   const [userID, setUserId] = useState('');
@@ -66,15 +65,17 @@ export default function HomeScreen({navigation}) {
           .child('DrinkInfo')
           .child(formatToday);
         const dailyInfo = await userDrinkReference.once('value');
-        if (dailyInfo.val() === null) {
+        if (!dailyInfo.val()) {
           userDrinkReference.set({
             today_Intake: 0,
+            today_percent: 0,
             fulfilled: false,
           });
           setCurrentIntake(0);
         } else {
           const data = dailyInfo.val();
           setCurrentIntake(data.today_Intake);
+          setDrinkRate(data.today_percent);
         }
         usersReference
           .child(user.uid)
@@ -98,12 +99,15 @@ export default function HomeScreen({navigation}) {
 
   useEffect(() => {
     if (userID !== '' && currentIntake !== 0) {
+      setDrinkRate(Math.ceil((currentIntake / userInfo.dailyIntake) * 100));
+      console.log('drinkRate', drinkRate);
       usersReference
         .child(userID)
         .child('DrinkInfo')
         .child(formatToday)
         .set({
           today_Intake: currentIntake,
+          today_percent: drinkRate,
           fulfilled: userInfo.dailyIntake <= currentIntake,
         });
     }
@@ -111,8 +115,8 @@ export default function HomeScreen({navigation}) {
 
   const returnMainText = () => {
     return drinkRate < 100
-      ? `\n오늘의 목표량을\n${drinkRate}%달성했어요💦`
-      : '\n오늘의 목표량을\n100%달성했어요👍🏻';
+      ? `\n오늘의 목표량을\n${drinkRate}% 달성했어요💦`
+      : '\n오늘의 목표량을\n100% 달성했어요👍🏻';
   };
   // const addHourDrink = () => {
   //   let hourReference = usersReference
@@ -121,7 +125,6 @@ export default function HomeScreen({navigation}) {
   //     .child(formatToday)
   //     .child('HourInfo');
   //   if (hourReference) {
-  //     console.log('왜안돼');
   //     hourReference.push({formatMin: userInfo.unitIntake});
   //   }
   // };
@@ -134,13 +137,23 @@ export default function HomeScreen({navigation}) {
             onPress={showFulfilledDialog}>
             <Image
               style={styles.settingImg}
-              source={require('../assets/icon/icon-trophy.png')}
+              source={require('../assets/icon/icon-party.png')}
             />
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity />
+          <TouchableOpacity>
+            <Image
+              style={styles.settingImg}
+              source={require('../assets/icon/icon-null.png')}
+            />
+          </TouchableOpacity>
         )}
-
+        <TouchableOpacity>
+          <Image
+            style={{width: 150, height: 70}}
+            source={require('../assets/logo.png')}
+          />
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.settingButton}
           onPress={() => navigation.navigate('설정')}>
@@ -204,7 +217,7 @@ export default function HomeScreen({navigation}) {
                 </Text>
               </View>
               <TouchableOpacity
-                style={styles.Button}
+                style={[styles.Button, {backgroundColor: '#c7ebff'}]}
                 onPress={hideFulfilledDialog}>
                 <Text style={styles.ButtonText}>알겠어요</Text>
               </TouchableOpacity>
@@ -277,12 +290,13 @@ export default function HomeScreen({navigation}) {
                 style={styles.Button}
                 onPress={() => {
                   hideDrinkDialog();
-                  setDrinkRate(
-                    Math.ceil((currentIntake / userInfo.dailyIntake) * 100),
-                  );
                   setCurrentIntake(
                     parseInt(currentIntake) + parseInt(currentUnitIntake),
                   );
+                  setDrinkRate(
+                    Math.ceil((currentIntake / userInfo.dailyIntake) * 100),
+                  );
+
                   if (drinkRate >= 100) {
                     showFulfilledDialog();
                   }
@@ -318,25 +332,26 @@ const styles = StyleSheet.create({
   topContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginRight: 5,
+    marginBottom: 30,
+    elevation: 10,
+    backgroundColor: '#FFFFFF',
   },
   imageStyle: {
     alignSelf: 'center',
-    zIndex: 1,
     height: 50,
     width: 150,
   },
   settingButton: {
-    justifyContent: 'flex-end',
     margin: 10,
   },
   settingImg: {
-    width: 48,
-    height: 48,
+    width: 45,
+    height: 45,
   },
   fulfilledContainer: {
     height: 180,
     margin: 15,
+    marginTop: 50,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 20,
@@ -376,6 +391,7 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   middleText: {
+    color: 'black',
     fontSize: 30,
     justifyContent: 'flex-start',
     fontFamily: 'BMJUA',
@@ -383,18 +399,19 @@ const styles = StyleSheet.create({
   },
   drinkButton: {
     position: 'absolute',
-    top: 235,
+    top: 240,
     left: 110,
     right: 110,
-    bottom: 170,
+    bottom: 165,
     margin: 10,
     width: 110,
     alignItems: 'center',
     backgroundColor: 'white',
-    borderRadius: 15,
+    borderRadius: 20,
     elevation: 10,
   },
   drinkText: {
+    color: 'black',
     position: 'absolute',
     fontSize: 17,
     justifyContent: 'center',
@@ -402,6 +419,7 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   showIntake: {
+    color: 'black',
     margin: 20,
     fontSize: 20,
     fontFamily: 'BMJUA',
@@ -434,6 +452,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#90D7FF',
   },
   ButtonText: {
+    color: 'black',
     fontSize: 15,
     textAlign: 'center',
     fontFamily: 'BMJUA',
