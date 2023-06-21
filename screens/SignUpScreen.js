@@ -318,6 +318,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headerText: {
+    color: 'black',
     padding: 10,
     margin: 5,
     fontSize: 20,
