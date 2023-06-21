@@ -66,13 +66,6 @@ export default function AppSettingScreen({navigation}) {
         </View>
         <View style={{flexDirection: 'row'}}>
           <Text style={styles.text}>방해 금지 시간</Text>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            marginLeft: 130,
-            marginTop: -20,
-          }}>
           <TextInput style={styles.TextInput}></TextInput>
           <Text style={styles.text2}>시 부터</Text>
           <TextInput style={styles.TextInput}></TextInput>
@@ -100,7 +93,7 @@ const styles = StyleSheet.create({
   text2: {
     fontFamily: 'BMJUA',
     fontSize: 18,
-    marginTop: 22,
+    marginTop: 17,
     marginBottom: 15,
     marginLeft: 8,
     marginRight: 8,
@@ -112,7 +105,9 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   top: {
-    margin: 20,
+    marginTop: 20,
+    marginLeft: 8,
+    marginRight: 8,
     borderRadius: 20,
     backgroundColor: '#FFFFFF',
     borderColor: '#000000',
@@ -137,7 +132,7 @@ const styles = StyleSheet.create({
   TextInput: {
     height: 40,
     width: 50,
-    marginTop: 15,
+    marginTop: 9,
     marginBottom: 15,
     borderRadius: 10,
     borderColor: 'gray',

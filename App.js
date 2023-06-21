@@ -1,4 +1,6 @@
 import React from 'react';
+import {useEffect} from 'react';
+import {Alert} from 'react-native';
 import {
   SafeAreaView,
   ScrollView,
@@ -16,6 +18,11 @@ import SettingScreen from './screens/SettingScreen';
 import UserSettingScreen from './screens/UserSettingScreen';
 import AppSettingScreen from './screens/AppSettingScreen';
 import StatisticsScreen from './screens/StatisticsScreens';
+import messaging from '@react-native-firebase/messaging';
+ 
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+  console.log(remoteMessage.ttl, remoteMessage);
+});
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +32,19 @@ const App = () => {
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+
+  const getFcmToken = async () => {
+    const fcmToken = await messaging().getToken();
+    console.log('[FCM Token] ', fcmToken);
+  };
+ 
+  useEffect(() => {
+    getFcmToken();
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert(remoteMessage.notification.title, remoteMessage.notification.body);
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <NavigationContainer>

@@ -8,36 +8,23 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { signOutAuth } from '../lib/auth';
 import { useNavigation } from '@react-navigation/native';
-import database from '@react-native-firebase/app';
+import database from '@react-native-firebase/database';
+import { usersReference } from '../lib/user';
+import { Alert } from 'react-native';
+import auth from "@react-native-firebase/auth"
 
-
-export default function UserSettingScreen({navigation}) {
+export default function UserSettingScreen({ navigation }) {
   const [selectedValue1, setSelectedValue1] = useState(null);
-  const [selectedValue2, setSelectedValue2] = useState(null);
-
   const [isOpen1, setIsOpen1] = useState(false);
-  const [isOpen2, setIsOpen2] = useState(false);
-
   const items1 = [
-<<<<<<< HEAD
     { label: '남성', value: '남성' },
     { label: '여성', value: '여성' },
-=======
-    {label: '남성', value: '남'},
-    {label: '여성', value: '여'},
->>>>>>> f21b583dd77e990ab3cc82fb5584a5ccc1ac8133
   ];
-
-  const items2 = [
-    {label: '없음', value: '없음'},
-    {label: '임산부', value: '임산부'},
-    {label: '다이어터', value: '다이어터'},
-    {label: '운동마니아', value: '운동마니아'},
-  ];
+  
 
   const [height, setHeight] = useState(160);
   const [weight, setWeight] = useState(50);
@@ -47,15 +34,31 @@ export default function UserSettingScreen({navigation}) {
   const [daily_intake, setDailyIntake] = useState(weight * 30);
   const [displayName, setDisplayName] = useState('김소복');
   const [pw, setPw] = useState(' ');
+  const [email, setEmail] = useState();
 
   // TextInput에 숫자랑 소숫점만 입력받게 함
   const [values, setValues] = useState({});
   const handleInputChange = (id, text) => {
     if (text === '' || /^\d*\.?\d*$/.test(text)) {
-      setValues(prevValues => ({...prevValues, [id]: text}));
+      setValues(prevValues => ({ ...prevValues, [id]: text }));
+    } else {
+      Alert.alert('경고', '숫자와 소숫점만 입력할 수 있습니다.')
     }
   };
-<<<<<<< HEAD
+
+  usersReference.child(auth().currentUser.uid).child('UserInfo').once('value', snapshot => {
+    const data = snapshot.val();
+    if (data !== null) {
+      setEmail(data.email);
+      setDisplayName(data.displayName);
+      setHeight(data.height)
+      setWeight(data.weight)
+      setAge(data.age)
+      setDailyIntake(data.daily_intake)
+    }
+  });
+
+
 
   // 로그아웃 후 로그인 화면으로
   const logout = () => {
@@ -63,34 +66,34 @@ export default function UserSettingScreen({navigation}) {
     navigation.navigate("로그인");
   }
 
-  const setPhysical = () => {
-    database()
-      .ref('/test/123')
+  const setPhysical = (inputHeiht, inputWeight, inputAge, inputGender) => {
+    usersReference.child(auth().currentUser.uid).child('UserInfo')
       .set({
-        height: 150,
-        weight: 44,
-        age: 23,
-        gender: '여성'
+        height: inputHeiht,
+        weight: inputWeight,
+        age: inputAge,
+        gender: inputGender
       })
       .then(() => console.log('Data set.'));
   }
 
-=======
->>>>>>> f21b583dd77e990ab3cc82fb5584a5ccc1ac8133
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.top}>
-        <Text style={styles.text}>👩 김소복님 </Text>
-        <Text style={styles.text_ID}>sobok_kim00</Text>
+        <Text style={styles.text}>👩 {`${displayName}`} 님</Text>
+        <Text style={styles.text_ID}>{`${email}`}</Text>
       </View>
 
       <View style={styles.top}>
         <View style={styles.physical}>
           <Text style={styles.text}>📝 신체 정보 설정 </Text>
           <TouchableOpacity
-            //onPress={() => setCurrentIntake(currentIntake + 100)}
-            
+            onPress={() => {
+              usersReference.child(auth().currentUser.uid).child('UserInfo').child('height').set(height);
+              usersReference.child(auth().currentUser.uid).child('UserInfo').child('weight').set(weight);
+              usersReference.child(auth().currentUser.uid).child('UserInfo').child('age').set(age);
+              usersReference.child(auth().currentUser.uid).child('UserInfo').child('gender').set(selectedValue1);}}
             style={{
               width: 60,
               height: 30,
@@ -107,7 +110,8 @@ export default function UserSettingScreen({navigation}) {
                 width: 0,
                 height: 3,
               },
-            }}>
+            }}
+          >
             <Text style={styles.textChange}>변경</Text>
           </TouchableOpacity>
         </View>
@@ -115,23 +119,38 @@ export default function UserSettingScreen({navigation}) {
           <Text style={styles.text2}>신장</Text>
           <TextInput
             style={styles.TextInput}
-            placeholder=" 160"
+            placeholder={`${height}`}
             keyboardType="numeric"
-            value={values.height}
+            value={values['input1']}
+            setHeight={values['input1']}
+            onChangeText={(text) =>
+              {handleInputChange('input1', text)
+            }}
           />
           <Text style={styles.text2}>cm</Text>
           <Text style={styles.text2}>체중</Text>
           <TextInput
             style={styles.TextInput}
-            placeholder=" 50"
-            onChange={value => setWeight(value.nativeEvent.text)}
+            placeholder={`${weight}`}
+            keyboardType="numeric"
+            value={values['input2']}
+            onChangeText={(text) => {
+              handleInputChange('input2', text)
+            }}
+          //onChange={value => setWeight(value.nativeEvent.text)}
           />
           <Text style={styles.text2}>kg</Text>
         </View>
 
         <View style={styles.physical2}>
           <Text style={styles.text2}>나이</Text>
-          <TextInput style={styles.TextInput} placeholder=" 24" />
+          <TextInput
+            style={styles.TextInput}
+            placeholder={`${age}`}
+            keyboardType="numeric"
+            value={values['input3']}
+            setHeight={values['input3']}
+            onChangeText={(text) => handleInputChange('input3', text)} />
           <Text style={styles.text2}>세 </Text>
           <Text style={styles.text2}>성별</Text>
           <DropDownPicker
@@ -140,7 +159,7 @@ export default function UserSettingScreen({navigation}) {
             items={items1}
             value={selectedValue1}
             setValue={setSelectedValue1}
-            containerStyle={{height: 10, width: 102, marginLeft: 6}}
+            containerStyle={{ height: 10, width: 102, marginLeft: 6 }}
             placeholder="남/여"
             listMode="MODAL"
             modalProps={{
@@ -157,6 +176,7 @@ export default function UserSettingScreen({navigation}) {
           <Text style={styles.text}>💦 일일 섭취량 설정 </Text>
           <TouchableOpacity
             //onPress={() => setCurrentIntake(currentIntake + 100)}
+            onPress={() => usersReference.child(auth().currentUser.uid).child('UserInfo').child('daily_intake').set(daily_intake)}
             style={{
               width: 60,
               height: 30,
@@ -177,30 +197,18 @@ export default function UserSettingScreen({navigation}) {
             <Text style={styles.textChange}>변경</Text>
           </TouchableOpacity>
         </View>
-<<<<<<< HEAD
-=======
-        <View style={styles.physical3}>
-          <Text style={styles.text2}>특이사항</Text>
-          <DropDownPicker
-            open={isOpen2}
-            setOpen={setIsOpen2}
-            items={items2}
-            containerStyle={{height: 10, width: 120}}
-            value={selectedValue2}
-            setValue={setSelectedValue2}
-            placeholder="선택"
-            listMode="MODAL"
-            modalProps={{
-              animationType: 'fade',
-            }}
-            modalTitle="특이사항을 선택해주세요."
-            onClose={() => setIsOpen2(false)} // 드롭다운 메뉴가 닫힐 때 setOpen 상태를 false로 설정
-          />
-        </View>
->>>>>>> f21b583dd77e990ab3cc82fb5584a5ccc1ac8133
+
         <View style={styles.physical}>
           <Text style={styles.text2}>일일 목표 섭취량</Text>
-          <TextInput style={styles.TextInput} placeholder=" 1500" />
+          <TextInput
+            style={styles.TextInput}
+            placeholder={`${daily_intake}`}
+            keyboardType="numeric"
+            value={values['input4']}
+            setDailyIntake={values['input4']}
+            onChangeText={(text) => {
+              handleInputChange('input4', text)
+            }} />
           <Text style={styles.text2}>ml</Text>
         </View>
       </View>
@@ -209,13 +217,20 @@ export default function UserSettingScreen({navigation}) {
         <Text style={styles.text}>🔒 계정 설정 </Text>
         <View style={styles.physical}>
           <Text style={styles.text2}>아이디</Text>
-          <Text style={styles.text2}>sobok_kim00</Text>
+          <Text style={styles.text2}>{email}</Text>
         </View>
         <View style={styles.physical}>
           <Text style={styles.text2}>닉네임</Text>
-          <TextInput style={styles.TextInput2} placeholder=" 김소복" />
+          <TextInput
+            style={styles.TextInput2}
+            placeholder={`${displayName}`}
+            
+            //value={displayName}
+            //onChange={value => setDisplayName(value.nativeEvent.text)}
+            onChangeText={(text) => setDisplayName(displayName.nativeEvent.text)}
+          />
           <TouchableOpacity
-      
+            onPress={() => {usersReference.child(auth().currentUser.uid).child('UserInfo').child('displayName').set(displayName);console.log(displayName)}}
             style={{
               width: 60,
               height: 30,
@@ -238,9 +253,13 @@ export default function UserSettingScreen({navigation}) {
         </View>
         <View style={styles.physical}>
           <Text style={styles.text2}>비밀번호</Text>
-          <TextInput style={styles.TextInput2} placeholder=" ********" />
+          <TextInput
+            style={styles.TextInput2}
+            placeholder=" ********"
+            autoComplete={'password'}
+            secureTextEntry={true}
+          />
           <TouchableOpacity
-            //onPress={() => setCurrentIntake(currentIntake + 100)}
             style={{
               width: 60,
               height: 30,
