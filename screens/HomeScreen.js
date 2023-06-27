@@ -1,3 +1,4 @@
+
 import {useState, useEffect, useRef} from 'react';
 import {
   StyleSheet,
@@ -17,6 +18,7 @@ import waterback from '../assets/waterback.png';
 import CustomButton from '../components/CustomButton';
 import waterImg from '../assets/water.png';
 import {TextInput} from 'react-native-paper';
+import * as Progress from 'react-native-progress';
 const moment = require('moment');
 
 export default function HomeScreen({navigation}) {
@@ -164,6 +166,13 @@ export default function HomeScreen({navigation}) {
         <Text style={styles.middleText}>{`${
           userInfo.displayName
         } 님,${returnMainText()}`}</Text>
+            <Progress.Bar  
+                color="#90D7FF"
+                style={styles.drinkProgressBar}
+                progress={drinkRate/100}
+                width={220}
+                height={180}
+              />
         <Image source={waterImg} />
         <TouchableOpacity onPress={showDrinkDialog} style={styles.drinkButton}>
           <Text style={styles.drinkText}>💧마셨어요</Text>
@@ -296,7 +305,6 @@ export default function HomeScreen({navigation}) {
                   setDrinkRate(
                     Math.ceil((currentIntake / userInfo.dailyIntake) * 100),
                   );
-
                   if (drinkRate >= 100) {
                     showFulfilledDialog();
                   }
@@ -410,6 +418,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     elevation: 10,
   },
+  drinkProgressBar:{
+    alignSelf: 'center' ,
+    transform: [{ rotate: '-90deg' }],
+    top:175,
+    position:"absolute"
+  },
   drinkText: {
     color: 'black',
     position: 'absolute',
@@ -458,3 +472,4 @@ const styles = StyleSheet.create({
     fontFamily: 'BMJUA',
   },
 });
+

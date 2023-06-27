@@ -1,5 +1,4 @@
 import React from 'react';
-<<<<<<< HEAD
 import {useEffect} from 'react';
 import {Alert} from 'react-native';
 import {
@@ -9,8 +8,7 @@ import {
   Text,
   useColorScheme,
 } from 'react-native';
-=======
->>>>>>> 7e2e50c3eafaddf7ff82434a7b63922cfc9df046
+
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from './screens/HomeScreen';
@@ -29,7 +27,6 @@ messaging().setBackgroundMessageHandler(async remoteMessage => {
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-<<<<<<< HEAD
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -49,8 +46,6 @@ const App = () => {
     return unsubscribe;
   }, []);
 
-=======
->>>>>>> 7e2e50c3eafaddf7ff82434a7b63922cfc9df046
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="로그인">
