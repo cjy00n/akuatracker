@@ -8,7 +8,7 @@ import {
   Switch,
   TouchableOpacity,
 } from 'react-native';
-import {useState, useEffect} from 'react';
+import {React, useState, useEffect} from 'react';
 import {getUser} from '../lib/user';
 import {BorderShadow} from 'react-native-shadow';
 import DropDownPicker from 'react-native-dropdown-picker';

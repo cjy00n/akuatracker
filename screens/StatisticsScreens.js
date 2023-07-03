@@ -1,45 +1,21 @@
-import {
-  StyleSheet,
-  ScrollView,
-  Text,
-  View,
-  Image,
-  TextInput,
-  Button,
-} from 'react-native';
+import {StyleSheet, ScrollView, Text, View} from 'react-native';
 import {useState, useEffect} from 'react';
 import {BarChart} from 'react-native-chart-kit';
 import {Calendar} from 'react-native-calendars';
 import {usersReference} from '../lib/user';
 import {subscribeAuth} from '../lib/auth';
 import * as Progress from 'react-native-progress';
-const moment = require('moment');
+import moment from 'moment';
 
 export default function StatisticsScreen({navigation}) {
-  const customStyles = {
-    container: {
-      backgroundColor: 'blue',
-    },
-    text: {
-      color: 'white',
-      fontWeight: 'bold',
-    },
-  };
   const [drinkRate, setDrinkRate] = useState(0);
   const [todayIntake, setTodayIntke] = useState(0);
   const [days, setDays] = useState([]);
-  const koreanNow = moment().utcOffset(9); // 한국 시간으로 변환 (UTC +9:00)
-  const formatToday = `${koreanNow.format('YYYY')}-${koreanNow.format(
-    'MM',
-  )}-${koreanNow.format('DD')}`;
-  const todayData = {
-    labels: ['0', '6', '12', '18', '24'],
-    datasets: [
-      {
-        data: [20, 45, 28, 80, 99],
-      },
-    ],
-  };
+  const [thisWeekIntake, setThisWeekIntake] = useState([]);
+  const [formatToday, setFormatToday] = useState(
+    moment().utcOffset(9).format('YYYY-MM-DD'),
+  );
+
   const [weekData, setWeekData] = useState({
     labels: ['월', '화', '수', '목', '금', '토', '일'],
     datasets: [
@@ -48,67 +24,60 @@ export default function StatisticsScreen({navigation}) {
       },
     ],
   });
-  const [markedDates, setMarkedDates] = useState({
-    '2023-06-01': {selected: true},
-    '2023-06-02': {selected: true},
-    '2023-06-05': {selected: true},
-    '2023-06-07': {selected: true},
-    '2023-06-09': {selected: true},
-    '2023-06-13': {selected: true},
-    '2023-06-15': {selected: true},
-    '2023-06-18': {selected: true},
-    '2023-06-21': {selected: true},
-  });
+  const [markedDates, setMarkedDates] = useState({});
   //최초 접속시 초기 DB설정
   useEffect(() => {
     let userDrinkReference;
+    let startOfWeek = moment(formatToday).startOf('week').add(1, 'days');
+    let tmp = [];
     subscribeAuth(async user => {
       if (user) {
-        userDrinkReference = usersReference
-          .child(user.uid)
-          .child('DrinkInfo')
-          .child(formatToday);
-        userDrinkReference.on('value', snapshot => {
-          setDrinkRate(snapshot.val().today_percent);
-          setTodayIntke(parseInt(snapshot.val().today_Intake));
-          setWeekData({
-            labels: ['월', '화', '수', '목', '금', '토', '일'],
-            datasets: [
-              {
-                data: [1000, 1200, snapshot.val().today_Intake, 0, 0, 0, 0],
-              },
-            ],
-          });
-        });
-
-        usersReference
-          .child(user.uid)
-          .child('DrinkInfo')
-          .once('value', snapshot => {
-            const data = snapshot.val();
-            if (data !== null) {
-              const keys = Object.keys(data);
-              const values = Object.values(data);
-              let tmp = [];
-              for (let i = 0; i < keys.length; i++) {
-                tmp.push({
-                  date: keys[i],
-                  fulfilled: values[i].fulfilled,
-                  intake: values[i].today_Intake,
-                });
-              }
-              setDays(tmp);
-              let tmp2 = [];
-              days.forEach(item => {
-                if (item.fulfilled === true) {
-                  tmp2.push({[item.date]: {selected: true}});
-                }
-              });
-              // setMarkedDates(tmp2);
-              // console.log('markedDates', markedDates);
-              // console.log(markedDates);
+        userDrinkReference = usersReference.child(user.uid).child('DrinkInfo');
+        for (let i = 0; i <= 6; i++) {
+          let date = startOfWeek.clone().add(i, 'days').format('YYYY-MM-DD');
+          userDrinkReference.child(date).on('value', snapshot => {
+            if (snapshot.val() !== null) {
+              tmp[i] = snapshot.val().today_Intake;
+            } else {
+              tmp[i] = 0;
             }
           });
+        }
+        setWeekData({
+          labels: ['월', '화', '수', '목', '금', '토', '일'],
+          datasets: [
+            {
+              data: tmp,
+            },
+          ],
+        });
+        userDrinkReference.child(formatToday).on('value', snapshot => {
+          if (snapshot.val() !== null) {
+            setDrinkRate(snapshot.val().today_percent);
+            setTodayIntke(parseInt(snapshot.val().today_Intake));
+          }
+        });
+        userDrinkReference.once('value', snapshot => {
+          const data = snapshot.val();
+          if (data) {
+            const keys = Object.keys(data);
+            const values = Object.values(data);
+            let tmp = [];
+            for (let i = 0; i < keys.length; i++) {
+              if (values[i].fulfilled === true) {
+                tmp.push(keys[i]);
+              }
+            }
+            let obj = tmp.reduce(
+              (c, v) =>
+                Object.assign(c, {
+                  [v]: {selected: true},
+                }),
+              {},
+            );
+            setMarkedDates(obj);
+          }
+        });
       }
     });
   }, []);
@@ -131,36 +100,27 @@ export default function StatisticsScreen({navigation}) {
                 {drinkRate} / 100%
               </Text>
             </View>
-            {/* <BarChart
-              data={todayData}
-              width={300}
-              height={200}
-              chartConfig={{
-                backgroundColor: '#ffffff',
-                backgroundGradientFrom: '#ffffff',
-                backgroundGradientTo: '#ffffff',
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-              }}
-            /> */}
           </View>
           <View style={styles.middleContainer}>
             <Text style={styles.headerText}>📈 주별통계</Text>
             <BarChart
+              style={styles.weekChart}
               data={weekData}
               width={320}
               height={200}
               chartConfig={{
+                barPercentage: 0.8,
                 backgroundColor: '#ffffff',
                 backgroundGradientFrom: '#ffffff',
                 backgroundGradientTo: '#ffffff',
                 decimalPlaces: 0,
                 color: (opacity = 1) => `rgba(54, 182, 255, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, 1)`,
                 style: {
                   borderRadius: 16,
+                },
+                propsForLabels: {
+                  fontFamily: 'BMJUA',
                 },
               }}
             />
@@ -172,6 +132,10 @@ export default function StatisticsScreen({navigation}) {
               onDayPress={day => console.log(markedDates)}
               onMonthChange={month => console.log('month changed', month)}
             />
+            <Text
+              style={{fontSize: 13, fontFamily: 'BMJUA', alignSelf: 'center'}}>
+              목표를 달성한 날은 파란색으로 칠해져요
+            </Text>
           </View>
         </View>
       </ScrollView>

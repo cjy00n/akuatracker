@@ -27,11 +27,6 @@ messaging().setBackgroundMessageHandler(async remoteMessage => {
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
 
   const getFcmToken = async () => {
     const fcmToken = await messaging().getToken();

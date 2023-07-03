@@ -1,25 +1,25 @@
-
-import {useState, useEffect, useRef} from 'react';
+import {useRef, useState, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
   View,
   Image,
-  Button,
   Modal,
   TouchableOpacity,
   ImageBackground,
+  Alert,
 } from 'react-native';
 import {usersReference} from '../lib/user';
 import {subscribeAuth} from '../lib/auth';
-import chart from '../assets/icon/icon_chart.png';
-import setting from '../assets/icon/icon-setting.png';
 import waterback from '../assets/waterback.png';
-import CustomButton from '../components/CustomButton';
 import waterImg from '../assets/water.png';
+import CustomButton from '../components/CustomButton';
 import {TextInput} from 'react-native-paper';
 import * as Progress from 'react-native-progress';
-const moment = require('moment');
+import ViewShot from 'react-native-view-shot';
+import CameraRoll from '@react-native-community/cameraroll';
+import Permissions from 'react-native-permissions';
+import moment from 'moment';
 
 export default function HomeScreen({navigation}) {
   const [userID, setUserId] = useState('');
@@ -33,6 +33,8 @@ export default function HomeScreen({navigation}) {
   const [drinkRate, setDrinkRate] = useState(0);
   const [visible, setVisible] = useState(false);
   const [visible2, setVisible2] = useState(false);
+  const viewShotRef = useRef(null);
+  let formatToday = moment().utcOffset(9).format('YYYY-MM-DD');
 
   const showDrinkDialog = () => {
     setVisible(true);
@@ -49,15 +51,9 @@ export default function HomeScreen({navigation}) {
     setVisible2(false);
   };
 
-  const koreanNow = moment().utcOffset(9); // 한국 시간으로 변환 (UTC +9:00)
-  const formatToday = `${koreanNow.format('YYYY')}-${koreanNow.format(
-    'MM',
-  )}-${koreanNow.format('DD')}`;
-  const formatHour = koreanNow.format('HH').toString();
-  const formatMin = koreanNow.format('mm').toString();
-
   //최초 접속시 초기 DB설정
   useEffect(() => {
+    console.log('format', formatToday);
     let userDrinkReference;
     subscribeAuth(async user => {
       if (user) {
@@ -102,7 +98,6 @@ export default function HomeScreen({navigation}) {
   useEffect(() => {
     if (userID !== '' && currentIntake !== 0) {
       setDrinkRate(Math.ceil((currentIntake / userInfo.dailyIntake) * 100));
-      console.log('drinkRate', drinkRate);
       usersReference
         .child(userID)
         .child('DrinkInfo')
@@ -113,23 +108,32 @@ export default function HomeScreen({navigation}) {
           fulfilled: userInfo.dailyIntake <= currentIntake,
         });
     }
-  }, [currentIntake]);
+  }, [currentIntake, drinkRate]);
 
   const returnMainText = () => {
     return drinkRate < 100
       ? `\n오늘의 목표량을\n${drinkRate}% 달성했어요💦`
       : '\n오늘의 목표량을\n100% 달성했어요👍🏻';
   };
-  // const addHourDrink = () => {
-  //   let hourReference = usersReference
-  //     .child(userID)
-  //     .child('DrinkInfo')
-  //     .child(formatToday)
-  //     .child('HourInfo');
-  //   if (hourReference) {
-  //     hourReference.push({formatMin: userInfo.unitIntake});
-  //   }
-  // };
+
+  const handleCapture = async () => {
+    try {
+      const permissionStatus = await Permissions.request('photo');
+
+      if (permissionStatus !== 'authorized') {
+        throw new Error('Permission not granted');
+      }
+
+      const result = await viewShotRef.current.capture();
+
+      await CameraRoll.save(result, {type: 'photo', album: 'MyAlbumName'});
+
+      Alert.alert('Success', 'Image saved to album.');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save image.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.topContainer}>
@@ -159,20 +163,23 @@ export default function HomeScreen({navigation}) {
         <TouchableOpacity
           style={styles.settingButton}
           onPress={() => navigation.navigate('설정')}>
-          <Image style={styles.settingImg} source={setting} />
+          <Image
+            style={styles.settingImg}
+            source={require('../assets/icon/icon-setting.png')}
+          />
         </TouchableOpacity>
       </View>
       <View style={styles.middleContainer}>
         <Text style={styles.middleText}>{`${
           userInfo.displayName
         } 님,${returnMainText()}`}</Text>
-            <Progress.Bar  
-                color="#90D7FF"
-                style={styles.drinkProgressBar}
-                progress={drinkRate/100}
-                width={220}
-                height={180}
-              />
+        <Progress.Bar
+          color="#90D7FF"
+          style={styles.drinkProgressBar}
+          progress={drinkRate / 100}
+          width={220}
+          height={180}
+        />
         <Image source={waterImg} />
         <TouchableOpacity onPress={showDrinkDialog} style={styles.drinkButton}>
           <Text style={styles.drinkText}>💧마셨어요</Text>
@@ -202,29 +209,33 @@ export default function HomeScreen({navigation}) {
                 width: '100%',
                 height: '100%',
               }}>
-              <View style={styles.fulfilledContainer}>
-                <Text
-                  style={[
-                    styles.fulfilledText,
-                    {
-                      fontSize: 30,
-                    },
-                  ]}>
-                  💕🌈🐋💞✨
-                </Text>
-                <Text
-                  style={[
-                    styles.fulfilledText,
-                    {
-                      fontSize: 25,
-                    },
-                  ]}>
-                  🎉촉촉해졌어요💦
-                </Text>
-                <Text style={[styles.fulfilledText, {margin: 10}]}>
-                  {userInfo.displayName}님,{'\n'}오늘은 물을 충분히 마셨어요!
-                </Text>
-              </View>
+              <ViewShot
+                ref={viewShotRef}
+                options={{format: 'jpg', quality: 0.9}}>
+                <View style={styles.fulfilledContainer}>
+                  <Text
+                    style={[
+                      styles.fulfilledText,
+                      {
+                        fontSize: 30,
+                      },
+                    ]}>
+                    💕🌈🐋💞✨
+                  </Text>
+                  <Text
+                    style={[
+                      styles.fulfilledText,
+                      {
+                        fontSize: 27,
+                      },
+                    ]}>
+                    🎉촉촉해졌어요💦
+                  </Text>
+                  <Text style={[styles.fulfilledText, {margin: 10}]}>
+                    {userInfo.displayName}님,{'\n'}오늘은 물을 충분히 마셨어요!
+                  </Text>
+                </View>
+              </ViewShot>
               <TouchableOpacity
                 style={[styles.Button, {backgroundColor: '#c7ebff'}]}
                 onPress={hideFulfilledDialog}>
@@ -243,7 +254,9 @@ export default function HomeScreen({navigation}) {
                     source={require('../assets/icon/icon-facebook.png')}
                   />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.saveButton} onPress={() => {}}>
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleCapture}>
                   <Image
                     style={styles.saveImg}
                     source={require('../assets/icon/icon-save.png')}
@@ -277,9 +290,9 @@ export default function HomeScreen({navigation}) {
                 <TextInput
                   style={styles.TextInput}
                   keyboardType={'numeric'}
-                  value={currentUnitIntake}
+                  value={currentUnitIntake.toString()}
                   onChange={value =>
-                    setCurrentUnitIntake(value.nativeEvent.text)
+                    setCurrentUnitIntake(parseInt(value.nativeEvent.text))
                   }
                 />
               </TouchableOpacity>
@@ -308,7 +321,6 @@ export default function HomeScreen({navigation}) {
                   if (drinkRate >= 100) {
                     showFulfilledDialog();
                   }
-                  // addHourDrink();
                 }}>
                 <Text style={styles.ButtonText}>맞아요</Text>
               </TouchableOpacity>
@@ -324,7 +336,7 @@ export default function HomeScreen({navigation}) {
         </View>
       </Modal>
       <CustomButton
-        icon={chart}
+        icon={require('../assets/icon/icon-chart.png')}
         text={'나의 통계 확인하기'}
         onPress={() => navigation.navigate('통계')}
       />
@@ -357,7 +369,7 @@ const styles = StyleSheet.create({
     height: 45,
   },
   fulfilledContainer: {
-    height: 180,
+    height: 200,
     margin: 15,
     marginTop: 50,
     justifyContent: 'center',
@@ -370,7 +382,7 @@ const styles = StyleSheet.create({
   fulfilledText: {
     textAlign: 'center',
     fontFamily: 'BMJUA',
-    fontSize: 15,
+    fontSize: 18,
     color: 'black',
   },
   saveButton: {
@@ -418,11 +430,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     elevation: 10,
   },
-  drinkProgressBar:{
-    alignSelf: 'center' ,
-    transform: [{ rotate: '-90deg' }],
-    top:175,
-    position:"absolute"
+  drinkProgressBar: {
+    alignSelf: 'center',
+    transform: [{rotate: '-90deg'}],
+    top: 175,
+    position: 'absolute',
   },
   drinkText: {
     color: 'black',
@@ -472,4 +484,3 @@ const styles = StyleSheet.create({
     fontFamily: 'BMJUA',
   },
 });
-
